@@ -1,0 +1,30 @@
+{
+    "name": "karmia-express-middleware-jsonrpc",
+    "version": "0.1.0",
+    "description": "JSON-RPC 2.0 middleware for Express",
+    "homepage": "https://github.com/fujimakishouten/karmia-express-middleware-jsonrpc",
+    "license": "MIT",
+    "author": "Kazuma Fujimaki <fujimaki-k@fujimakishouten.com>",
+    "main": "index.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/fujimakishouten/karmia-express-middleware-jsonrpc"
+    },
+    "scripts": {
+        "test": "./node_modules/.bin/mocha ./test"
+    },
+    "dependencies": {
+        "karmia-rpc": ">=0.1.1"
+    },
+    "devDependencies": {
+        "body-parser": ">=1.15.2",
+        "eslint": ">=3.4.0",
+        "expect.js": ">=0.3.1",
+        "express": ">=4.14.0",
+        "karmia-context": ">=0.5.4",
+        "mocha": ">=2.4.5"
+    },
+    "engines": {
+        "node": ">=6.0.0"
+    }
+}
