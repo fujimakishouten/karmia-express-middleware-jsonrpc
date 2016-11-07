@@ -57,6 +57,26 @@ jsonrpc.methods.set('error', function () {
 
     return Promise.reject(error);
 });
+jsonrpc.methods.set('badRequest', function () {
+    return Promise.reject(new Error('Bad Request'));
+});
+jsonrpc.methods.set('internalServerError', function () {
+    return Promise.reject(new Error('Internal Server Error'));
+});
+jsonrpc.methods.set('400', function () {
+    const error = new Error();
+    error.code = 400;
+
+    return Promise.reject(error);
+});
+jsonrpc.methods.set('500', function () {
+    const error = new Error();
+    error.code = 500;
+
+    return Promise.reject(error);
+});
+
+
 
 // Middleware
 app.use(function (req, res, next) {
@@ -90,7 +110,7 @@ describe('karmia-express-rpc-rpc', function () {
     describe('RPC', function () {
         describe('RPC request', function () {
             it('success', function (done) {
-                const data = {method: 'success', id: 'success'};
+                const data = {jsonrpc: '2.0', method: 'success', id: 'success'};
                 request(data).then(function (result) {
                     expect(result.jsonrpc).to.be('2.0');
                     expect(result.result).to.eql({success: true});
@@ -101,7 +121,7 @@ describe('karmia-express-rpc-rpc', function () {
             });
 
             it('fail', function (done) {
-                const data = {method: 'error', id: 'error'};
+                const data = {jsonrpc: '2.0', method: 'error', id: 'error'};
                 request(data).then(function (result) {
                     expect(result.jsonrpc).to.be('2.0');
                     expect(result.error.code).to.be(500);
@@ -115,7 +135,7 @@ describe('karmia-express-rpc-rpc', function () {
 
         describe('Notification request', function () {
             it('success', function (done) {
-                const data = {method: 'success'};
+                const data = {jsonrpc: '2.0', method: 'success'};
                 request(data).then(function (result) {
                     expect(result).to.be('');
 
@@ -124,7 +144,7 @@ describe('karmia-express-rpc-rpc', function () {
             });
 
             it('fail', function (done) {
-                const data = {method: 'error'};
+                const data = {jsonrpc: '2.0', method: 'error'};
                 request(data).then(function (result) {
                     expect(result).to.be('');
 
@@ -135,8 +155,8 @@ describe('karmia-express-rpc-rpc', function () {
 
         it('Batch request', function (done) {
             const data = [
-                {method: 'success', id: 'success'},
-                {method: 'error', id: 'error'}
+                {jsonrpc: '2.0', method: 'success', id: 'success'},
+                {jsonrpc: '2.0', method: 'error', id: 'error'}
             ];
             request(data).then(function (result) {
                 result.forEach(function (value, index) {
@@ -149,6 +169,65 @@ describe('karmia-express-rpc-rpc', function () {
                 expect(result[1].error.message).to.be('TEST_EXCEPTION');
 
                 done();
+            });
+        });
+
+        describe('Error converter', function () {
+            describe('Should convert error', function () {
+                it('Version not specified', function (done) {
+                    const data = {method: 'error', id: 'error'};
+                    request(data).then(function (result) {
+                        expect(result.error.code).to.be(-32600);
+                        expect(result.error.message).to.be('Invalid request');
+                        expect(result.id).to.be(data.id);
+
+                        done();
+                    });
+                });
+
+                it('Method not specified', function (done) {
+                    const data = {jsonrpc: '2.0', id: 'error'};
+                    request(data).then(function (result) {
+                        expect(result.error.code).to.be(-32600);
+                        expect(result.error.message).to.be('Invalid request');
+                        expect(result.id).to.be(data.id);
+
+                        done();
+                    });
+                });
+
+                it('Method not found', function (done) {
+                    const data = {jsonrpc: '2.0', method: 'not_found', id: 'error'};
+                    request(data).then(function (result) {
+                        expect(result.error.code).to.be(-32601);
+                        expect(result.error.message).to.be('Method not found');
+                        expect(result.id).to.be(data.id);
+
+                        done();
+                    });
+                });
+
+                it('Invalid params', function (done) {
+                    const data = {jsonrpc: '2.0', method: 'badRequest', id: 'error'};
+                    request(data).then(function (result) {
+                        expect(result.error.code).to.be(-32602);
+                        expect(result.error.message).to.be('Invalid params');
+                        expect(result.id).to.be(data.id);
+
+                        done();
+                    });
+                });
+
+                it('Internal error', function (done) {
+                    const data = {jsonrpc: '2.0', method: 'internalServerError', id: 'error'};
+                    request(data).then(function (result) {
+                        expect(result.error.code).to.be(-32603);
+                        expect(result.error.message).to.be('Internal error');
+                        expect(result.id).to.be(data.id);
+
+                        done();
+                    });
+                });
             });
         });
     });
