@@ -1,6 +1,6 @@
 {
     "name": "karmia-express-middleware-jsonrpc",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "description": "JSON-RPC 2.0 middleware for Express",
     "homepage": "https://github.com/fujimakishouten/karmia-express-middleware-jsonrpc",
     "license": "MIT",

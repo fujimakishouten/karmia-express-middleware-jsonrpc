@@ -131,6 +131,17 @@ describe('karmia-express-rpc-rpc', function () {
                     done();
                 });
             });
+
+            it('ID is null', function (done) {
+                const data = {jsonrpc: '2.0', method: 'success', id: null};
+                request(data).then(function (result) {
+                    expect(result.jsonrpc).to.be('2.0');
+                    expect(result.result).to.eql({success: true});
+                    expect(result.id).to.eql(data.id);
+
+                    done();
+                });
+            });
         });
 
         describe('Notification request', function () {
