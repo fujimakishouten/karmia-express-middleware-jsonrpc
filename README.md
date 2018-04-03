@@ -14,7 +14,7 @@ npm install karmia-express-middleware-jsonrpc
 
 ```JavaScript
 const karmia_express_middleware_jsonrpc = require('karmia-express-middleware-jsonrpc'),
-    jsonrpc = karmia_express_middleware_jsonrpc();
+    jsonrpc = new karmia_express_middleware_jsonrpc();
 jsonrpc.methods.set('method', function () {
     return Promise.resolve({success: true});
 });
@@ -23,7 +23,7 @@ const body_parser = require('body-parser'),
     express = require('express'),
     karmia_context = require('karmia-context'),
     app = express(),
-    context = karmia_context();
+    context = new karmia_context();
 
 app.use(function (req, res, next) {
     req.context = context.child();

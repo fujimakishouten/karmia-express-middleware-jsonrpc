@@ -13,7 +13,7 @@ const http = require('http'),
     express = require('express'),
     karmia_express_middleware_jsonrpc = require('../'),
     app = express(),
-    jsonrpc = karmia_express_middleware_jsonrpc(),
+    jsonrpc = new karmia_express_middleware_jsonrpc(),
     request = (parameters) => {
         const body = JSON.stringify(parameters),
             options = {
@@ -80,7 +80,7 @@ jsonrpc.methods.set('500', function () {
 
 // Middleware
 app.use(function (req, res, next) {
-    req.context = karmia_context();
+    req.context = new karmia_context();
 
     next();
 });

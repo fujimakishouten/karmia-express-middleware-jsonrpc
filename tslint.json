@@ -1,0 +1,11 @@
+{
+    "extends": [
+        "tslint-eslint-rules"
+    ],
+    "rules": {
+        "indent": [true, "spaces"],
+        "ter-indent": [true, 4],
+        "linebreak-style": [true, "LF"]
+    }
+}
+
