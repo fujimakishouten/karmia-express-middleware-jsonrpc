@@ -1,6 +1,6 @@
 {
     "name": "karmia-express-middleware-jsonrpc",
-    "version": "0.2.0",
+    "version": "0.2.2",
     "description": "JSON-RPC 2.0 middleware for Express",
     "homepage": "https://github.com/fujimakishouten/karmia-express-middleware-jsonrpc",
     "license": "MIT",
@@ -11,6 +11,8 @@
         "url": "https://github.com/fujimakishouten/karmia-express-middleware-jsonrpc.git"
     },
     "scripts": {
+        "cobertura": "./node_modules/.bin/istanbul cover --report cobertura ./node_modules/mocha/bin/_mocha ./test",
+        "coverage": "./node_modules/.bin/istanbul cover --report html ./node_modules/mocha/bin/_mocha ./test",
         "test": "./node_modules/.bin/mocha ./test"
     },
     "dependencies": {
@@ -18,12 +20,16 @@
         "karmia-converter-jsonrpc": "^0.2.0"
     },
     "devDependencies": {
-        "body-parser": ">=1.15.2",
-        "eslint": ">=3.4.0",
-        "expect.js": ">=0.3.1",
-        "express": ">=4.14.0",
-        "karmia-context": ">=0.5.4",
-        "mocha": ">=2.4.5"
+        "body-parser": "^1.18.2",
+        "eslint": "^4.19.1",
+        "expect.js": "^0.3.1",
+        "express": "^4.16.3",
+        "istanbul": "^1.1.0-alpha.1",
+        "karmia-context": "^0.6.1",
+        "mocha": "^5.0.5",
+        "tslint": "^5.9.1",
+        "tslint-eslint-rules": "^5.1.0",
+        "typescript": "^2.8.1"
     },
     "engines": {
         "node": ">=4.0.0"
