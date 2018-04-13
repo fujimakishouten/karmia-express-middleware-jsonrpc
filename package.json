@@ -1,6 +1,6 @@
 {
     "name": "karmia-express-middleware-jsonrpc",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "description": "Karmia JSON-RPC 2.0 middleware for Express.",
     "homepage": "https://github.com/fujimakishouten/karmia-express-middleware-jsonrpc",
     "license": "MIT",
@@ -23,7 +23,7 @@
         "@types/mocha": "^5.0.0",
         "@types/node": "^9.6.2",
         "karmia-rpc": "^0.3.1",
-        "karmia-jsonrpc": "^0.3.1",
+        "karmia-jsonrpc": "^0.3.2",
         "typescript": "^2.8.1"
     },
     "devDependencies": {
