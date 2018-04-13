@@ -5,46 +5,66 @@
 
 
 
+// Import modules
+import http = require("http");
+import BodyParser = require("body-parser");
+import Express = require("express");
+import KarmiaContext = require("karmia-context");
+import KarmiaExpressMiddlewareJSONRPC = require('../');
+
+
+// Declaration
+declare interface Parameters {
+    [index: string]: any
+}
+
+declare class HTTPResponse extends http.IncomingMessage {
+    data?: string;
+}
+
+declare class JSONRPCError extends Error {
+    code?: number;
+    data?: any;
+}
+
+
+
 // Variables
-const http = require('http'),
-    body_parser = require('body-parser'),
-    expect = require('expect.js'),
-    karmia_context = require('karmia-context'),
-    express = require('express'),
-    karmia_express_middleware_jsonrpc = require('../'),
-    app = express(),
-    jsonrpc = new karmia_express_middleware_jsonrpc(),
-    request = (parameters) => {
-        const body = JSON.stringify(parameters),
-            options = {
-                hostname: 'localhost',
-                port: 30000,
-                method: 'POST',
-                path: '/',
-                headers: {
-                    'Content-Type': 'application/json; charset=UTF-8',
-                    'Content-Length': Buffer.byteLength(body)
-                }
+let server: http.Server;
+const expect = require("expect.js");
+const app = Express();
+const jsonrpc = new KarmiaExpressMiddlewareJSONRPC();
+const request = (parameters: Parameters): Promise<any> => {
+    const body = JSON.stringify(parameters),
+        options = {
+            hostname: 'localhost',
+            port: 30000,
+            method: 'POST',
+            path: '/',
+            headers: {
+                'Content-Type': 'application/json; charset=UTF-8',
+                'Content-Length': Buffer.byteLength(body)
+            }
         };
 
-        return new Promise(function (resolve) {
-            const request = http.request(options, (response) => {
-                response.setEncoding('UTF-8');
-                response.data = '';
+    return new Promise(function (resolve) {
+        const request = http.request(options, (response: HTTPResponse) => {
+            response.setEncoding('UTF-8');
+            response.data = '';
 
-                response.on('data', (chunk) => {
-                    response.data = response.data + chunk;
-                });
-
-                response.on('end', function () {
-                    resolve((response.data) ? JSON.parse(response.data) : response.data);
-                });
+            response.on('data', (chunk) => {
+                response.data = response.data + chunk;
             });
 
-            request.write(body);
-            request.end();
+            response.on('end', function () {
+                resolve((response.data) ? JSON.parse(response.data) : response.data);
+            });
         });
-    };
+
+        request.write(body);
+        request.end();
+    });
+};
 
 
 // RPC
@@ -52,7 +72,7 @@ jsonrpc.methods.set('success', function () {
     return Promise.resolve({success: true});
 });
 jsonrpc.methods.set('error', function () {
-    const error = new Error('TEST_EXCEPTION');
+    const error = new Error('TEST_EXCEPTION') as JSONRPCError;
     error.code = 500;
 
     return Promise.reject(error);
@@ -64,29 +84,28 @@ jsonrpc.methods.set('internalServerError', function () {
     return Promise.reject(new Error('Internal Server Error'));
 });
 jsonrpc.methods.set('400', function () {
-    const error = new Error();
+    const error = new Error() as JSONRPCError;
     error.code = 400;
 
     return Promise.reject(error);
 });
 jsonrpc.methods.set('500', function () {
-    const error = new Error();
+    const error = new Error() as JSONRPCError;
     error.code = 500;
 
     return Promise.reject(error);
 });
 
 
-
 // Middleware
-app.use(function (req, res, next) {
-    req.context = new karmia_context();
+app.use(function (req?: Parameters, res?: Parameters, next?: Function) {
+    req.context = new KarmiaContext();
 
     next();
 });
-app.use(body_parser.json());
+app.use(BodyParser.json());
 app.use(jsonrpc.middleware());
-app.use(function (req, res) {
+app.use(function (req: Parameters, res: Parameters) {
     if (204 === req.code) {
         res.status(req.code).end();
     } else {
@@ -95,9 +114,16 @@ app.use(function (req, res) {
     }
 });
 
-// Listen
-app.listen(30000);
 
+// Before
+before(function () {
+    server = app.listen(30000);
+});
+
+// After
+after(function () {
+    server.close();
+});
 
 
 describe('karmia-express-rpc-rpc', function () {
@@ -132,8 +158,8 @@ describe('karmia-express-rpc-rpc', function () {
                 });
             });
 
-            it('ID is null', function (done) {
-                const data = {jsonrpc: '2.0', method: 'success', id: null};
+            it('ID is empty', function (done) {
+                const data = {jsonrpc: '2.0', method: 'success', id: ''};
                 request(data).then(function (result) {
                     expect(result.jsonrpc).to.be('2.0');
                     expect(result.result).to.eql({success: true});
@@ -170,7 +196,7 @@ describe('karmia-express-rpc-rpc', function () {
                 {jsonrpc: '2.0', method: 'error', id: 'error'}
             ];
             request(data).then(function (result) {
-                result.forEach(function (value, index) {
+                result.forEach(function (value: {[index: string]: any}, index: number) {
                     expect(result[index].jsonrpc).to.be('2.0');
                     expect(result[index].id).to.be(data[index].id);
                 });

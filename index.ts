@@ -4,10 +4,19 @@
 'use strict';
 
 
+// Import modules
+import KarmiaRPC = require("karmia-rpc");
+import KarmiaJSONRPC = require("karmia-jsonrpc");
 
-// Variables
-const karmia_jsonrpc = require('karmia-jsonrpc'),
-    karmia_converter_jsonrpc = require('karmia-converter-jsonrpc');
+
+// Declaration
+declare interface Methods {
+    [index: string]: Function|object;
+}
+
+declare interface Parameters {
+    [index: string]: any;
+}
 
 
 /**
@@ -17,15 +26,20 @@ const karmia_jsonrpc = require('karmia-jsonrpc'),
  */
 class KarmiaExpressMiddlewareJSONRPC {
     /**
+     * Properteis
+     */
+    public rpc: KarmiaJSONRPC;
+    public methods: KarmiaRPC;
+
+    /**
      * Constructor
      *
      * @constructs KarmiaExpressMiddlewareJSONRPC
      * @returns {Object}
      */
-    constructor(options) {
+    constructor(options?: Methods) {
         const self = this;
-        self.rpc = new karmia_jsonrpc(options);
-        self.converter = new karmia_converter_jsonrpc();
+        self.rpc = new KarmiaJSONRPC(options);
         self.methods = self.rpc.methods;
     }
 
@@ -37,7 +51,7 @@ class KarmiaExpressMiddlewareJSONRPC {
     middleware() {
         const self = this;
 
-        return (req, res, next) => {
+        return (req?: Parameters, res?: Parameters, next?: Function) => {
             if (res.body) {
                 return next();
             }
@@ -58,9 +72,7 @@ class KarmiaExpressMiddlewareJSONRPC {
 
 
 // Export modules
-module.exports = function (options) {
-    return new KarmiaExpressMiddlewareJSONRPC(options);
-};
+export = KarmiaExpressMiddlewareJSONRPC;
 
 
 
